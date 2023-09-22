@@ -1,7 +1,5 @@
-using Shapefile
-using DataFrames
-using Statistics
-using Plots
+using Shapefile, DataFrames, Statistics, Plots, RollingFunctions
+plotlyjs()
 
 table = Shapefile.Table("./data/JRC_POPULATION_2018.shp")
 
@@ -26,12 +24,12 @@ end
 datadict = Dict(k=>country2cumsums(k) for k in [
 "FR",
 "UK",
-"DE",
+#"DE",
 "ES",
 #"NL",
 #"PL",
 #"BE",
-#"IT",
+"IT",
 #"NO",
 ])
 
@@ -52,14 +50,14 @@ function popwithindensity(bins,range,pops)
     (densities,[sum(qs[findfirst(x->x>d,pops):findfirst(x->x>d*(1+range),pops)]) for d in densities])
 end
 
-using RollingFunctions
 
 bins = 1000
 width = 0.05
 smoothing = 50
-p = plot()
+p = plot();
 for (k,v) in quantiledict
     (density, pop) = popwithindensity(bins,width,v)
-    plot!(p, rollmean(density,smoothing), rollmean(pop,smoothing); label=k,xlabel="population/km^2", ylabel="pop% within $(width*100)pp density", xscale=:log10)
+    plot!(p, rollmean(density,smoothing), rollmean(pop,smoothing); label=k,xlabel="population/km^2", ylabel="pop% within $(width*100)pp density", xscale=:log10);
 end
+Plots.savefig(p, "test.png")
 p
